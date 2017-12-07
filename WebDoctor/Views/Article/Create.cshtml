@@ -1,0 +1,102 @@
+﻿
+@model WebDoctor.Models.CreateArticleModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Create New Article</h2>
+
+
+@using (Ajax.BeginForm("Create", "Article", new AjaxOptions { HttpMethod = "POST", OnSuccess = "succes()", OnFailure = "fail()" }, new { @id = "createArticle" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Header, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.Header, new { @class = "form-control", placeholder = "Please anter header" })
+                @Html.ValidationMessageFor(model => model.Header, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Content, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Content, new { @class = "form-control", placeholder = "Please enter content" })
+                @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Categories, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.CategoryId, Model.Categories, "Seçiniz", new { @class = "form-control dropdown" })
+                @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.IsActive, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.CheckBoxFor(model => model.IsActive, new { type = "checkbox", @checked = "checked" })
+                    @* @Html.CheckBox("IsActive", new { value = Model.IsActive})*@
+                    @Html.ValidationMessageFor(model => model.IsActive, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" id="save" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+
+    @*<script src="~/Scripts/getByArticleHeader.js"></script>*@
+    
+    <script src="@Url.Content("~/Scripts/jquery.validate.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")"></script>
+
+    <script>
+        $("#save").on("click", function () {
+            debugger;
+            var name = $('#Header').val();
+            var category = $('#CategoryId').val();
+
+            if (name != "" && category != "") {
+                $.ajax({
+                    type: 'GET',
+                    url: "/Article/GetByName?name=" + name + "&categoryId=" + category,
+                    cache: false,
+                    success: function (data) {
+                        if (data == true) {
+                            alert("This record is already exists!");
+                        } else {
+                            $('form').trigger('submit', function (success) {
+                                alert("Registration has been successful!");
+                            });
+                        }
+                    }, error: function (xhr, status, error) {
+                        alert("There was an error adding!");
+                    }
+                });
+            }
+
+        });
+    </script>
+
+    @Scripts.Render("~/bundles/jqueryval")
+}
